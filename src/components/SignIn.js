@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import Authenticate from './Authenticate.js';
+import { useSelector } from 'react-redux';
 
 
 function SignIn() {
+
+  const mode = useSelector(state=>state.environment.mode)
  
   return (
       
@@ -12,12 +15,20 @@ function SignIn() {
           <img
             className="flex transition duration-500"
             style={{ width: "200px" }}
-            src="https://oomnielabs.s3.us-west-2.amazonaws.com/graphics/images/Octopus+in+lab+coat.png"
-            alt="Octopus"
+            src={`https://nlightnlabs01.s3.us-west-1.amazonaws.com/wis/graphics/images/wis_logo_${mode}.png`}
+            alt="WIS"
           />
-          <div className={`flex text-[50px] w-full justify-center text-center transition  duration-500`}>Oomnie Labs</div>
+          <div className={`flex text-[32px] w-full justify-center text-center transition  duration-500 mb-5`}>Scheduling Optimizer</div>
           
           <Authenticate />
+
+          <div className="flex flex-col w-full items-center mt-[100px]">
+            <div className={`secondary-color-mode-${mode} text-[12px]`}>Powered by</div>
+            <img 
+              src="https://nlightnlabs01.s3.us-west-1.amazonaws.com/images/nlightn_labs_logo.png" alt="nlightn labs logo"
+              className="flex w-[150px]"
+              />
+          </div>
         
         </div>    
       </div>

@@ -165,6 +165,8 @@ export const authenticateUser = async (params)=>{
   console.log(params)
   try{
     const submitLoggin = await serverConnection.post("/db/authenticateUser",params)
+    console.log(submitLoggin)
+    
     const userValidated = submitLoggin.data
     return userValidated
   }catch(error){
