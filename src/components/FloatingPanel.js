@@ -3,8 +3,10 @@ import { toProperCase } from "../functions/formatValue";
 import Svg from "./Svg"
 
 const FloatingPanel = (props) => {
-    const { children, title, height, width, headerColor, headerTextColor, backgroundColor, border, rounded, shadow, displayPanel, theme} = props;
+    const { children, title, height, width, headerColor, headerTextColor, backgroundColor, border, rounded, shadow, displayPanel, color, theme} = props;
     
+    console.log(backgroundColor)
+
     const panelRef = React.useRef();
     const allowDrag = true
 
@@ -15,6 +17,8 @@ const FloatingPanel = (props) => {
   
     const containerStyle = {
       position: "fixed",
+      display: "flex",
+      flexDirection: "column",
       height: height,
       width: width,
       maxHeight: "80vh",
@@ -23,9 +27,11 @@ const FloatingPanel = (props) => {
       cursor: "move",
       zIndex: 99999,
       overflow: "hidden",
-      backgroundColor: backgroundColor || "white",
-      border: props.border || "1px solid gray",
-      borderRadius: props.rounded || "10px"
+      color: color || "black",
+      backgroundColor: backgroundColor || "rgb(235,235,235)",
+      border: border || "2px solid rgb(200,200,200)",
+      borderRadius: rounded || "10px",
+      boxShadow: shadow || "5px 5px 15px rgba(200,200,200,0.5)"
     };
   
     const handleMouseDown = (e) => {
@@ -50,32 +56,28 @@ const FloatingPanel = (props) => {
     };
 
     const HeaderStyle={
-      backgroundColor:"rgb(235,235,235)", 
       height:"50px", 
       overflow:"hidden",
-      borderBottom: "2px solid gray",
-      backgroundColor: headerColor || "rgb(0,100,225)"
+      borderBottom: "1px solid rgb(200,200,200)",
     }
 
     const TitleStyle = {
       fontSize:"20px", 
-      color: headerTextColor || "white", 
       fontWeight: "bold",
     }
 
     const BodyStyle = {
-        height: "95%", 
+        display: "flex",
+        height: "100%", 
         width: "100%", 
         overflowY:"auto", 
         overflowX: "hidden",
+        padding: "10px"
     }
-  
-
   
     return (
       <div
         ref={panelRef}
-        className={`flex flex-col panel-theme-${theme} shadow border border-3 rounded-3`}
         style={{
           ...containerStyle,
           left: position.x + "px",
@@ -96,13 +98,14 @@ const FloatingPanel = (props) => {
             title = "Close Panel"
             className="flex items-center me-2" 
             style={{height: "30px", width:"30px", pointer:"cursor"}}
-            onClick={(e)=>displayPanel(false)}>
-            <Svg iconName={"CloseIcon"} fillColor="rgb(200,200,200)"/>
+            onClick={(e)=>displayPanel(false)}
+          >
+            <Svg iconName="CloseIcon" fillColor="rgb(200,200,200)"/>
           </div>
 
         </div>
 
-        <div className="flex h-[100%] flex-wrap p-3">
+        <div style={BodyStyle}>
           {children}
         </div>
         

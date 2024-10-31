@@ -3,7 +3,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { setUser, setIsAuthenticated } from '../redux/slices/authSlice';
 import { setCurrentPage } from '../redux/slices/navSlice';
-import * as nlightnApi from '../apis/nlightnlabs'
+import * as nlightnlabsApi from '../apis/nlightnlabs'
+import MultiInput from './MultiInput';
 
 const Authenticate = () => {
 
@@ -19,7 +20,6 @@ const Authenticate = () => {
 
     const handleInputChange = (e)=>{
       let {name, value} = e.target
-    
       if(name=="username"){
         value = value.toString().toLowerCase()
       }
@@ -33,17 +33,17 @@ const Authenticate = () => {
     const navigate = useNavigate();
     
     const handleSubmit = async ()=>{
-      console.log(formData)
 
-      const userIsValidated = await nlightnApi.authenticateUser(formData)
-      console.log(userIsValidated)
+      const userIsValidated = await nlightnlabsApi.authenticateUser(formData)
 
       if(userIsValidated){
-        let user = await nlightnApi.getUserInfo(formData.username)
+       
+        let user = await nlightnlabsApi.getUserInfo(formData.username)
+     
         dispatch(setUser(user))
         dispatch(setIsAuthenticated(true))
-        dispatch(setCurrentPage("apps"))
-        navigate('/apps');
+        dispatch(setCurrentPage("home"))
+        navigate('/home');
       }else{
         setAuthenticationError(true)
       }
@@ -52,32 +52,40 @@ const Authenticate = () => {
 
   return (
     <div className="flex flex-col w-[300px] fade-in">
+
         <div className={`flex flex-col mb-3 body-mode-${mode} w-full`}>
-            <input 
+            <MultiInput 
+              id="username"
               name="username"
+              label="Username"
               className={`input-mode-${mode} w-full mb-3`} 
               placeholder="Username" 
-              value = {formData.username} 
+              value = ""
               onChange={(e)=>handleInputChange(e)}
               style={{ outline: "none" }}
-              >
-            </input>
+              />
+        
         </div>
 
         <div className={`flex flex-col mb-3 body-mode-${mode}`}>
-          <input
+          <MultiInput
+            id="pwd"
             name="pwd"
+            label="Password"
             className={`input-mode-${mode} w-full mb-3`} 
             placeholder="Password" 
-            value = {formData.password} 
+            value = "" 
             type="password"
             onChange={(e)=>handleInputChange(e)}
             style={{ outline: "none" }}
-            >
-            </input>
+            />
         </div>
 
-        <div className={`button-mode-${mode}`} onClick={()=>handleSubmit()}>Sign In</div>
+        <div className="flex justify-center">
+          <button className={`button-mode-${mode}`} onClick={()=>handleSubmit()}>
+            Sign In
+          </button>
+        </div>
         {authenticationError && <p className="text-red-500">Invalid Login</p>
 
         }

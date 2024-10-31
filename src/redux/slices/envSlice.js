@@ -4,10 +4,10 @@ import { PURGE } from 'redux-persist';
 export const envSlice = createSlice({
   name: 'environment',
   initialState: {  
-    appName: "Oomnie Labs Prototypes",
+    appName: "AI Event Staffing Optimizer",
     logo: "https://oomnielabs.s3.us-west-2.amazonaws.com/graphics/images/Oomnitza-Logos-RGB_New+Tagline_White+copy.png",
     theme: "oomnielabs-default",
-    mode: "dark",
+    mode: "light",
   },
   reducers: {
     setAppName: (state, action) => {
@@ -26,10 +26,10 @@ export const envSlice = createSlice({
   extraReducers: (builder) => {
     builder.addCase(PURGE, (state) => {
       // Reset to initialState when PURGE is triggered
-      state.appName = "Oomnie Labs Prototypes";
-      state.logo = "https://oomnielabs.s3.us-west-2.amazonaws.com/graphics/images/Oomnitza-Logos-RGB_New+Tagline_White+copy.png";
-      state.theme = "oomnielabs-default";
-      state.mode = "dark";
+      state.appName = "AI Event Staffing Optimizer";
+      state.logo = "";
+      state.theme = "";
+      state.mode = "light";
     });
   },
 });

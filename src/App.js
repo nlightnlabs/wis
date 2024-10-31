@@ -19,9 +19,6 @@ function App() {
     user
   }
 
-  useEffect(() => {
-    console.log("is authenticated:", isAuthenticated);
-  }, [isAuthenticated]);
 
   return (
     <div className={`flex flex-col w-full bg-mode-${mode} h-[100vh] overflow-hidden fade-in`}>

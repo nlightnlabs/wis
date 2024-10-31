@@ -15,7 +15,6 @@ const Header = () => {
   const [showBrightnessOptions, setShowBrightnessOptions] = useState(false);
   const [brightnessIconProps, setBrightnessIconProps] = useState({ top: 0, left: 0, height: 0 });
 
-
   const navigateTo = useNavigate()
   const handleSignOut = ()=>{
     dispatch(clearAllStorage())
@@ -39,16 +38,19 @@ const Header = () => {
 
   return (
 
-    <div className={`flex w-100 h-[75px] justify-between items-center border-b-[1px] border-b-gray-600 bg-mode-${mode} fade-in z-50`}>
+    <div className={`flex w-100 h-[75px] justify-between items-center border-b-[1px] border-b-gray-300 bg-mode-${mode} transition duration-500 fade-in z-50`}>
 
       <div className="flex w-full md:w-1/2 ms-3 align-items-center">
-        <img src="https://nlightnlabs01.s3.us-west-1.amazonaws.com/wis/graphics/images/wis_logo.png" alt="Logo" className="h-[50px] w-40px" />
+      <img 
+          src={`https://nlightnlabs01.s3.us-west-1.amazonaws.com/wis/graphics/images/wis_logo_${mode}.png`} 
+          alt="Logo" 
+          className="h-[50px] w-40px fade-in transition duration-500" />
       </div>
 
       <div 
       className={`flex relative right-0 justify-end items-center me-5`}>
         
-        <div className="ms-2 me-2" onClick={()=>navigateTo("/home")} title="Apps Home Page">
+        <div className="ms-2 me-2" onClick={()=>navigateTo("/apps")} title="Apps Home Page">
           <Svg 
             iconName = "HomeIcon"
             height = "30px"
@@ -82,9 +84,9 @@ const Header = () => {
           />
           </div>
         
-            <div className={`flex flex-col justify-center items-center h-100 forcolor-mode-${mode} me-5 ms-5 `}>
-            <div className={`primary-color-mode-${mode} font-bold`}>{user.first_name}</div>
-            <div className={`text-[12px] secondary-color-mode-${mode} cursor-pointer hover:bg-[rgb(200,200,200)] hover:text-gray-600 ps-1 pe-1 rounded-md" onClick={(e)=>handleSignOut()`}>Sign Out</div>
+          <div className={`flex flex-col justify-center items-center h-100 body-mode-${mode} me-5 ms-5`}>
+            <div>{user.first_name}</div>
+            <div className={`text-[12px] cursor-pointer p-1 secondary-color-mode-${mode} hover:bg-[rgb(200,200,200)] hover:text-gray-600 ps-1 pe-1 rounded-md`} onClick={(e)=>handleSignOut()}>Sign Out</div>
           </div>
 
       </div>

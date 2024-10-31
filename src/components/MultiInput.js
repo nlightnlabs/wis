@@ -1,383 +1,198 @@
-import React, {useState, useEffect, forwardRef, useRef} from 'react'
-import * as oomnielabsApi from '../apis/oomnielabs';
-import {formatDateInput} from '../functions/formatValue'
+import React, {useState, useEffect, useRef} from 'react'
+import { useSelector } from 'react-redux';
+import * as styleFunctions from '../functions/styleFunctions'
+import * as formatValue from '../functions/formatValue'
 
-const MultiInput = forwardRef((props, ref) => {
+const MultiInput = (props) => {
 
-  let target = {}
-  const list = props.list
-  const label = props.label
-  const type = props.type
-  const id = props.id
-  const name =props.name
-  const onChange= props.onChange 
-  const onBlur= props.onBlur
-  const onHover= props.onHover
-  const [valueColor, setValueColor]= useState(props.valueColor)
-  const [labelColor, setLabelColor]= useState(props.labelColor)
-  const optionColor = props.optionColor
-  const valueSize= props.valueSize 
-  const labelSize= props.labelSize 
-  const optionSize = props.optionSize
-  const valueWeight=  props.valueWeight
-  const labelWeight= props.labelWeight
-  const optionWeight = props.optionWeight
-  const layout= props.layout
-  const border= props.border
-  const valueFill= props.valueFill 
-  const [labelFill, setLabelFill] = useState(props.labelFill)
-  const padding= props.padding
-  const rounded= props.rounded
-  const readonly= props.readonly
-  const disabled= props.disabled
-  const required = props.required
-  const showLookupValue = props.showLookupValue || false
-  const width = props.width
-  const height = props.height
-  const dropDownFill = props.dropDownFill
-  const allowAddData = props.allowAddData
-  const marginTop = props.marginTop
-  const marginBottom = props.marginBottom
+const updateParent  = props.onChange
+const list = props.list || []
+const [options, setOptions] = useState([])
+const mode = useSelector(state=>state.environment.mode)
 
-  const [value, setValue] = useState("")
-  const [options, setOptions] = useState([])
-  const [dropDownDisplay, setDropDownDisplay] = useState("none")
-  const [calendarDisplay, setCalendarDisplay] = useState("none")
-  const [datePickerDisplay, setDatePickerDisplay] = useState("none")
-  const [selectedIndex, setSelectedIndex] = useState(0)
+const id = props.id || ""
+const name = props.name || ""
+const label = props.label || ""
+const type = props.type || "text"
 
-  const [startDate, setStartDate] = useState(new Date());
+const [value, setValue] = useState(props.value || "")
+const [showDropdown, setShowDropdown] = useState(false)
 
-  const [formClassList, setFormClassList] = useState("form-floating w-100")
+const classNameMain = props.classNameMain || `input-maincontainer-mode-${mode}`
+const classNameInput = props.classNameInput || `input-input-mode-${mode}`
+const classNameLabel = props.classNameLabel || `input-label-mode-${mode}`
+const classNameDropdown = props.classNameDropdown || `input-dropdown-mode-${mode}`
+const classNameOption = props.classNameOption || `input-option-mode-${mode}`
 
-  const inputRef = useRef("")
-  const containerRef = useRef("")
+const required = props.required || false
+const disabled = props.disabled || false
+const readonly = props.readonly || false
+const abbreviate = props.abbreviate || false
 
-  useEffect(()=>{
-    if(list && list.length>0 && value !="" && value !=null){
-      setSelectedIndex(list.indexOf(props.value))
+const dropdownRef = useRef()
+const [containerHeight, setContainerHeight] = useState(null)
+
+
+useEffect(()=>{
+    setValue(props.value)
+},[props.value])
+
+useEffect(()=>{
+if (props.list && props.list.length>0){
+    setOptions(props.list)
     }
-  },[list])
+},[])
 
-  useEffect(()=>{
-  
-    if(props.readonly || props.disabled){
-      setValueColor("black")
-      setLabelFill("white")
-     }else{
-      setValueColor(props.valueColor)
-     }
 
-     if(props.label && props.label !==""){
-      setFormClassList("form-floating w-100")
-     }else{
-      setFormClassList("form-group w-100")
-     }
-
-  },[props.readonly, props.disabled, props.label])
-
-  
-
-  useEffect(()=>{
-    setValue(props.value || "")
-  },[props.value])
-
-  const containerstyle={
-    display: "flex",
-    position: "relative",
-    top: 0,
+const [inputData, setInputData] = useState({})
+const inputRef = useRef(null)
+const labelRef = useRef(null);
+const [inputProps, setInputProps] = useState({ 
+    width: props.width || "100%", 
+    height: props.labelFontSize + props.valueFontSize + 15 || 50, 
+    top: 0, 
     left: 0,
-    get display(){if(layout=="stacked"){return "block"}else{return "flex"}},
-    width: "100%",
-    minHeight: height,
-    marginTop: marginTop || 0,
-    marginBottom: marginTop || 10
-  }
-  
+    padding: 5
+});
 
-  const inputStyle ={
-    fontSize: valueSize || 14,
-    fontWeight: valueWeight || "normal",
-    color: valueColor || "rgb(0,100,225)",
-    backgroundColor: valueFill || "white",
-    outline: "none",
-    width: width || "100%",
-    border: border|| "1px solid rgb(235,235,235)",
-    get padding(){ if(padding){return padding}else{ return ;}}
+const [mainContainerStyle, setMainContainerStyle] = useState({})
+const [labelStyle, setLabelStyle] = useState({});
+const [inputFontStyle, setInputFontStyle] = useState({
+    textAlign: "left",
+});
+
+useEffect(() => {
+
+  if (inputRef.current) {
+    const { width, height, top, left } = inputRef.current.getBoundingClientRect();
+    setInputProps({ width, height, top, left });
   }
 
-  const textAreaStyle ={
-    cursor: "pointer",
-    fontSize: valueSize || 14,
-    fontWeight: valueWeight || "normal",
-    color: valueColor || "#5B9BD5",
-    backgroundColor: valueFill || "white",
-    outline: "none",
-    width: width || "100%",
-    minHeight: 100,
-    border: border|| "1px solid rgb(235,235,235)",
-  }
+  changeLabelFontSize(value)
 
-  const labelStyle ={
-    fontSize: labelSize || inputStyle.fontSize,
-    fontWeight: labelWeight || "normal",
-    color: labelColor || "gray",
-  }
+}, []); 
 
 
-  const dropDownStyle = {
-    display: dropDownDisplay,
-    position: "absolute",
-    top: (inputRef.current.offsetHeight)+"px",
-    left: (inputRef.current.offsetLeft)+"px",
-    width: "100%",
-    maxHeight: 200,
-    overflowY: "auto",
-    overflowX: "hidden",
-    padding: padding || 5,
-    backgroundColor: dropDownFill || "rgba(255,255,255,0.95)",
-    boxShadow: "5px 5px 5px lightgray",
-    border: "1px solid lightgray",
-    borderRadius: "0px 0px 5px 10px",
-    color: valueColor || "#5B9BD5",
-    zIndex:99999
-  }
-
-  const optionsStyle = {
-    display: "block",
-    width: "100%",
-    cursor: "pointer",
-    fontSize: inputStyle.fontSize,
-    fontWeight: optionWeight || "normal",
-    padding: padding || 5,
-    color: optionColor || "black",
-    backgroundColor: "white" || "rgb(255,255,255,0)",
-  }
-
-
-  const handleOptionClick=(e)=>{
-
-    let selectedIndex = e.target.id
-    let selectedValue = list[selectedIndex]
-
-    setValue(selectedValue)
-    setSelectedIndex(selectedIndex)
-    setOptions(list)
-
-    setDropDownDisplay("none")
-    updateStates(selectedValue)
-  }
-
-  const handleOptionHover = (event)=>{
-    if(event.type == "mouseover") {
-      event.target.style.backgroundColor = "rgb(235,245,255)";
-      event.target.style.fontWeight = "bold";
-      event.target.style.color = "#2C7BFF";
-    }else{
-      event.target.style.backgroundColor = optionsStyle.backgroundColor;
-      event.target.style.fontWeight = optionsStyle.fontWeight;
-      event.target.style.color = optionsStyle.color;
+const handleInputClick = ()=>{
+    if(list.length>0){
+        setShowDropdown(true)
     }
-  }
+    changeLabelFontSize(value)
+}
 
-  const handleDropDownToggle=(event)=>{
-      setDropDownDisplay("block")
-  }
 
-  const updateStates=(inputValue)=>{
+const handleLeave = (e)=>{
+    setShowDropdown(false)
+}
 
-    let selectedValue = inputValue
-    let selectedIndex = 0
-    if(list && list.length>0){
-      selectedIndex = list.indexOf(selectedValue)
+const changeLabelFontSize = (value) =>{
+
+    const labelFontSizeNum = parseFloat(styleFunctions.getFontSize(classNameLabel));
+
+    if(value && value.length>0){
+        setLabelStyle({
+        fontSize: `${labelFontSizeNum * 0.75}px`,       // Shrink by 50%
+        transform: `translateY(-${labelFontSizeNum-5}px)`, // Move up by input font size
+        transition: 'font-size 0.3s ease, transform 0.3s ease' // Smooth transition
+      });
     }
-    setSelectedIndex(selectedIndex)
-    updateParent(selectedValue)
-  }
-
-  const updateParent = (inputValue)=>{
-    if(typeof onChange =="function"){
-      let target = {
-        ...props,
-        value: inputValue,
-      }
-      onChange({target})
-    }
-  }
-  
-  const handleHover=(e)=>{
-    if(e.type =="mouseleave"){
-        setDropDownDisplay("none")
-    }
-  }
-
-  const handleDoubleClick = (e)=>{
-
-    props.list && props.list>0 && setOptions(props.list)
-    setDropDownDisplay("block")
-    e.target.select()
-   
-  }
-
-  const handleFocus = (e)=>{
-    if(list  && list.length>0){
-      setOptions(list.filter(item=>item))
-    }
-    setDropDownDisplay("block")
-    e.target.select()
-  }
-
-  const handleClick = (e)=>{
-    
-    if(list  && list.length>0){
-      setOptions(list.filter(item=>item))
-    }
-    setDropDownDisplay("block")
-  }
-
-  const handleBlur=(e)=>{
-    
-  }
-
-  const inputProps = {
-    readOnly: readonly || false,
-    disabled: disabled || false,
-    required: required || false,
-    multiple: true 
-  }
-
-  const handleInputChange=(inputText)=>{
-    
-      setValue(inputText)
-      
-      if(props.list && props.list.length>0){
-        // filter the options based on the text user has inputted
-        if(inputText && inputText.length>=1){
-          setOptions(options.filter(item=>item.toLowerCase().includes((inputText).toLowerCase())))
-        }else{
-          setOptions(list.filter(item=>item))
+    else{
+        setLabelStyle({
+                fontSize: `${labelFontSizeNum}px`,       // Shrink by 50%
+                transform: `translateY(0)`, // Move up by input font size
+                transition: 'font-size 0.3s ease, transform 0.3s ease' // Smooth transition
+            });
         }
-      }
-      updateStates(inputText)
-  }
+}
 
-  const iconstyle = {
-    maxHeight: 20,
-    maxWidth: 20,
-    cursor: "pointer"
-  }
+useEffect(()=>{
+    changeLabelFontSize(value)
+},[value])
 
-  const handleAddData = ()=>{
+const handleInputChange = (e)=>{
+   
+    let {name, value} = e.target
+    setValue(value)
 
-  }
-
-  const formatDate = (inputValue)=>{
-    var date = new Date(inputValue); 
-    var dateString = new Date(date.getTime() - (date.getTimezoneOffset() * 60000 )) .toISOString() .split("T")[0];
-    setValue(dateString || "")
-  }
-
-  const formatValue = (inputValue)=>{
-    if(type == "date"){
-      formatDate(inputValue)
-    }else{
-      setValue(inputValue || "")
+    let filteredOptions = []
+    if (value.length > 0) {
+        filteredOptions = options.filter(item=>
+            item && String(item).toLowerCase().includes(value.toLowerCase())
+        );
+        setOptions(filteredOptions)
+    } else {
+        setOptions(list)
     }
-  }
+    
+    setInputData({...inputData,"name": name, "value":value})
+    if(typeof(updateParent) === "function"){
+        updateParent(e)
+    }      
+}
+
+const handleOptionClick = (item)=>{
+    console.log(item)
+    setValue(item)
+
+    const e = {
+        target: {
+            name: name,
+            value: item
+        }
+    }
+    setShowDropdown(false)
+    handleInputChange(e)
+}
 
   return (
     <div 
-      ref = {containerRef}
-      id={id}
-      name={name} 
-      className="d-flex"
-      style={containerstyle}
-      onBlur={(e)=>handleBlur(e)}
-      onMouseLeave={(e)=>handleHover(e)}
-      onClick={(e)=>handleClick(e)}
-    >
-          <div className={formClassList}>
-          {type == "textarea" ?
-              <textarea 
-                className="form-control"
-                id={id}
-                name={name}
-                style={textAreaStyle} 
-                ref = {inputRef}
-                type={type}
-                value={value}
-                onChange={(e)=>handleInputChange(e.target.value)}
-                onBlur={(e)=>handleBlur(e.target.value)}
-                {...inputProps}
-                >
-            </textarea>
-            :
-            type == "file" ?
-              <input 
-                className="form-control"
-                id={id}
-                name={name}
-                style={textAreaStyle}
-                ref = {inputRef}
-                type={type}
-                value={value}
-                placeholder={label}
-                onChange={(e)=>handleInputChange(e.target.value)}
-                onBlur={(e)=>handleBlur(e.target.value)}
-                {...inputProps}
-                >
-            </input>
-            :
-            <input 
-                className="form-control"
-                id={id}
-                name={name}
-                style={inputStyle}
-                ref = {inputRef}
-                type={type}
-                placeholder={label}
-                value={type=="date"? formatDateInput(value):value}
-                onChange={(e)=>handleInputChange(e.target.value)}
-                onBlur={(e)=>handleBlur(e)}
-                onDoubleClick={(e)=>handleDoubleClick(e)}
-                onFocus={(e)=>handleFocus(e)}
-                {...inputProps}
-                >
-            </input>
-            }
-            {label && label!=="" && <label htmlFor={name} className="form-label text-body-tertiary small" style={labelStyle}>{label}</label>}
-          </div>
-        
+        className={classNameMain} 
+        style={mainContainerStyle}
+        onMouseLeave={()=>handleLeave()}>
 
-         {list && list.length>0 && type!=="date" &&
-            <div style={dropDownStyle}>
-              {options.map((item,index)=>(
-                <div
-                  key={index}
-                  id={props.list.indexOf(item)}
-                  name={item}
-                  style={optionsStyle}
-                  onClick={(e)=>handleOptionClick(e)}
-                  onMouseOver={(e)=>handleOptionHover(e)}
-                  onMouseLeave={(e)=>handleOptionHover(e)}
-                >
-                  {item}
-                </div>
-              ))}
-            </div>  
-        }
         {
-            props.list && props.list.length>0 && type=="select" && allowAddData && 
-            <img 
-              src={`${oomnielabsApi.icons}/add_icon.png`} 
-              alt="Add Icon"
-              style={iconstyle} 
-              onClick={(e)=>handleAddData(e)}>
-            </img>
+            <div
+                ref = {labelRef}
+                id={`label_${id}`}
+                htmlFor={`input_${id}`}
+                className={`${classNameLabel}`}
+                style={labelStyle}
+            >
+            {`${label}`} <span style={{color: "red"}}>{`${required ? "*" : ""}`}</span>
+            </div>
         }
+        
+        <input 
+            ref={inputRef} 
+            className={classNameInput}
+            style={inputFontStyle}
+            id ={`input_${id}`}
+            name={name}
+            value = {formatValue.formatInput(value, type)}
+            type={type==="password"? "password": "text"}
+            onChange = {(e)=>handleInputChange(e)}
+            onClick = {(e)=>handleInputClick()}
+            readOnly = {readonly}
+            disabled = {disabled}
+            autoComplete="off" 
+            >
+        </input>
 
+        {showDropdown && options.length>0 &&
+            <div id="dropdown" ref={dropdownRef} className={classNameDropdown}  style={{height:"200px", top: inputProps.height}}>
+                {options.map((item,index)=>(
+                    <div 
+                        key={index} 
+                        className={classNameOption}
+                        onClick={(e)=>handleOptionClick(item)}
+                        >
+                        {item}
+                    </div>
+                ))}
+            </div>
+        }
     </div>
   )
-})
+}
 
 export default MultiInput

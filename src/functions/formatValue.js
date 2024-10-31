@@ -200,3 +200,45 @@ export const formatFileSize = (inputValue)=>{
     }
 
 }
+
+
+function isDate(date) {
+  // Check if it's a Date object
+  if (date instanceof Date && !isNaN(date.getTime())) {
+      return true;
+  }
+  return false;
+}
+
+export const formatInput = (value, dataType) =>{
+  
+  let date = value
+  
+  if (dataType === "number" && !isNaN(date)) {
+      return parseFloat(value).toLocaleString("en-US");
+  } 
+
+  else if (dataType === "date" && !isNaN(Date.parse(date))) {
+
+      const isValidDate = isDate(value)
+      if(!isValidDate){
+          date = new Date(value);
+      }
+      
+      const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+      const day = String(date.getDate()).padStart(2, '0');
+      const year = date.getFullYear();
+      return `${month}/${day}/${year}`;
+  } 
+  else if (dataType === "time") {
+      const date = new Date(`1970-01-01T${value}`);
+      if (!isNaN(date.getTime())) {
+          let hours = date.getHours();
+          const minutes = String(date.getMinutes()).padStart(2, '0');
+          const period = hours >= 12 ? "PM" : "AM";
+          hours = hours % 12 || 12; // Convert to 12-hour format
+          return `${hours}:${minutes} ${period}`;
+      }
+  }
+  return value; // Return text or unrecognized types as-is
+}

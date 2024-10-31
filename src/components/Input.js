@@ -1,6 +1,7 @@
 import React, {useState, useEffect, useRef} from 'react'
 import { useSelector } from 'react-redux';
 import * as styleFunctions from '../functions/styleFunctions'
+import * as formatValue from '../functions/formatValue'
 
 const Input = (props) => {
 
@@ -26,13 +27,17 @@ const classNameOption = props.classNameOption || `input-option-mode-${mode}`
 const required = props.required || false
 const disabled = props.disabled || false
 const readonly = props.readonly || false
+const abbreviate = props.abbreviate || false
+
+useEffect(()=>{
+    setValue(props.value)
+},[props.value])
 
 useEffect(()=>{
 if (list && list.length>0){
     setOptions(list)
-}
-
-},[props])
+    }
+},[props.list])
 
 
 const [inputData, setInputData] = useState({})
@@ -46,7 +51,9 @@ const [inputProps, setInputProps] = useState({
     padding: 5
 });
 const [labelStyle, setLabelStyle] = useState({});
-const [inputFontStyle, setInputFontStyle] = useState({});
+const [inputFontStyle, setInputFontStyle] = useState({
+    textAlign: "left",
+});
 
 useEffect(() => {
 
@@ -60,10 +67,11 @@ useEffect(() => {
 }, []); 
 
 
-
-
 const handleInputClick = ()=>{
     if (options && options.length > 0) {
+        setShowDropdown(true)
+    }
+    if(list.length>0){
         setShowDropdown(true)
     }
 }
@@ -79,8 +87,8 @@ const changeLabelFontSize = (value) =>{
 
     if(value && value.length>0){
         setLabelStyle({
-        fontSize: `${labelFontSizeNum * 0.8}px`,       // Shrink by 50%
-        transform: `translateY(-${labelFontSizeNum}px)`, // Move up by input font size
+        fontSize: `${labelFontSizeNum * 0.75}px`,       // Shrink by 50%
+        transform: `translateY(-${labelFontSizeNum-5}px)`, // Move up by input font size
         transition: 'font-size 0.3s ease, transform 0.3s ease' // Smooth transition
       });
     }
@@ -98,27 +106,28 @@ useEffect(()=>{
 },[value])
 
 const handleInputChange = (e)=>{
+   
     let {name, value} = e.target
-
     setValue(value)
-    
-    let filteredOptions = []
-    if (value.length > 0 && options.length > 0) {
-        filteredOptions = options.filter(item => item.toLowerCase().includes(value.toLowerCase())
-        );
-    } else {
-        filteredOptions = options
-    }
-    setOptions(filteredOptions)
 
+    let filteredOptions = []
+    if (value.length > 0) {
+        filteredOptions = options.filter(item=>
+            item && String(item).toLowerCase().includes(value.toLowerCase())
+        );
+        setOptions(filteredOptions)
+    } else {
+        setOptions(list)
+    }
+    
     setInputData({...inputData,"name": name, "value":value})
     if(typeof(updateParent) === "function"){
-        updateParent({...inputData,"name": name, "value":value})
-    }
-          
+        updateParent(e)
+    }      
 }
 
 const handleOptionClick = (item)=>{
+    console.log(item)
     setValue(item)
 
     const e = {
@@ -127,12 +136,12 @@ const handleOptionClick = (item)=>{
             value: item
         }
     }
+    setShowDropdown(false)
     handleInputChange(e)
 }
 
-
   return (
-    <div className={classNameMain} onMouseLeave={()=>handleLeave()}>
+    <div className={classNameMain}>
 
         {
             <div
@@ -152,8 +161,7 @@ const handleOptionClick = (item)=>{
             style={inputFontStyle}
             id ={`input_${id}`}
             name={name}
-            value = {value}
-            type = {type}
+            value = {formatValue.formatInput(value, type)}
             onChange = {(e)=>handleInputChange(e)}
             onClick = {(e)=>handleInputClick()}
             readOnly = {readonly}
@@ -162,14 +170,14 @@ const handleOptionClick = (item)=>{
         </input>
 
         {showDropdown && options.length>0 &&
-            <div id="dropdown" className={classNameDropdown} style={{height:"200px", top: inputProps.height}}>
+            <div id="dropdown" className={classNameDropdown}  style={{height:"200px", top: inputProps.height}} onMouseLeave={()=>handleLeave()}>
                 {options.map((item,index)=>(
                     <div 
                         key={index} 
                         className={classNameOption}
                         onClick={(e)=>handleOptionClick(item)}
                         >
-                        {item.toString()}
+                        {item}
                     </div>
                 ))}
             </div>

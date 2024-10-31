@@ -1,6 +1,7 @@
 import axios from "axios";
 import * as formatValue from '../functions/formatValue.js'
 
+// export const baseURL = process.env.NODE_ENV==="production" ? "https://nlightnlabs.net" : "http://localhost:3001"
 export const baseURL = "https://nlightnlabs.net"
 
 const dbName = "wis"
@@ -9,26 +10,20 @@ export const serverConnection = axios.create({
   baseURL,
 })
 
-export const images = "https://oomnielabs.s3.us-west-2.amazonaws.com/code/apps/oomnielabs/images"
-export const icons = "https://oomnielabs.s3.us-west-2.amazonaws.com/code/apps/oomnielabs/icons"
+export const images = "https://nlightnlabs01.s3.us-west-1.amazonaws.com/wis/graphics/images"
+export const icons = "https://nlightnlabs01.s3.us-west-1.amazonaws.com/wis/graphics/images"
 
 
 
 //General Query
-export const getData = async (query, res)=>{
-
-  const body ={
-    query:query,
-    dbName:dbName
-  }
-
+export const getData = async (query)=>{
   try{
-    const result = await serverConnection.post("/db/query",body)
-    //console.log(result)
+    const result = await serverConnection.post("/nlightn/db/query",{query, dbName})
+    console.log(result)
     const data = await result.data
     return (data)
   }catch(error){
-    //console.log(error)
+    console.log(error)
   }
 }
 
@@ -37,8 +32,8 @@ export const getData = async (query, res)=>{
 export const getTable = async (tableName)=>{
 
     try{
-      const result = await serverConnection.get(`/db/table/${tableName}/${dbName}`)
-      console.log(result.data)
+      const result = await serverConnection.get(`/nlightn/db/table/${tableName}/${dbName}`)
+    
       const {data,dataTypes} = await result.data
       return ({data,dataTypes})
     }catch(error){
@@ -50,7 +45,7 @@ export const getTable = async (tableName)=>{
   export const getList = async (tableName,fieldName)=>{
 
     try{
-      const result = await serverConnection.get(`/db/list/${tableName}/${fieldName}`)
+      const result = await serverConnection.get(`/nlightn/db/list/${tableName}/${fieldName}`)
       const data = await result.data
       return (data)
     }catch(error){
@@ -63,7 +58,7 @@ export const getTable = async (tableName)=>{
   export const getConditionalList = async (tableName,fieldName,conditionalField, condition)=>{
    
     try{
-      const result = await serverConnection.get(`/db/subList/${tableName}/${fieldName}/${conditionalField}/${condition}`)
+      const result = await serverConnection.get(`/nlightn/db/subList/${tableName}/${fieldName}/${conditionalField}/${condition}`)
       const data = await result.data
       return (data)
     }catch(error){
@@ -76,7 +71,7 @@ export const getTable = async (tableName)=>{
 export const getRecord = async (tableName,conditionalField, condition)=>{
 
   try{
-    const result = await serverConnection.post("/db/getRecord",{tableName,conditionalField, condition})
+    const result = await serverConnection.post("/nlightn/db/getRecord",{tableName,conditionalField, condition})
     // console.log(result)
     const data = await result.data
     return (data)
@@ -89,7 +84,7 @@ export const getRecord = async (tableName,conditionalField, condition)=>{
 export const getRecords = async (tableName, conditionalField, condition)=>{
 
   try{
-    const result = await serverConnection.post("/db/getRecords",{tableName,conditionalField, condition})
+    const result = await serverConnection.post("/nlightn/db/getRecords",{tableName,conditionalField, condition})
     //console.log(result)
     const data = await result.data
     return (data)
@@ -102,7 +97,7 @@ export const getRecords = async (tableName, conditionalField, condition)=>{
 export const getValue = async (tableName,lookupField, conditionalField,conditionalValue)=>{
   
   try{
-    const result = await serverConnection.get(`/db/value/${tableName}/${lookupField}/${conditionalField}/${conditionalValue}`)
+    const result = await serverConnection.get(`/nlightn/db/value/${tableName}/${lookupField}/${conditionalField}/${conditionalValue}`)
     //console.log(result)
     const data = await result.data
     return (data)
@@ -116,7 +111,7 @@ export const getValue = async (tableName,lookupField, conditionalField,condition
 export const addRecord = async (tableName, formData)=>{
   if(tableName.length > 0 && Object.entries(formData).length>0){
     try{
-      const result = await serverConnection.post("/db/addRecord",{tableName, formData})
+      const result = await serverConnection.post("/nlightn/db/addRecord",{tableName, formData})
       console.log(result)
       const data = await result.data
       return (data)
@@ -132,7 +127,7 @@ export const addRecord = async (tableName, formData)=>{
 export const updateRecord = async (tableName,idField,recordId,formData)=>{
   
     try{
-      const result = await serverConnection.post("/db/updateRecord",{tableName,idField,recordId,formData})
+      const result = await serverConnection.post("/nlightn/db/updateRecord",{tableName,idField,recordId,formData})
       console.log(result)
       const data = await result.data
       return (data)
@@ -150,7 +145,7 @@ export const deleteRecord = async (tableName,idField,recordId)=>{
     recordId
 }
   try{
-    const result = await serverConnection.post("/db/deleteRecord",{params})
+    const result = await serverConnection.post("/nlightn/db/deleteRecord",{params})
     //console.log(result)
     const data = await result.data
     return (data)
@@ -161,11 +156,9 @@ export const deleteRecord = async (tableName,idField,recordId)=>{
 
 //Authenticate User
 export const authenticateUser = async (params)=>{
-
-  console.log(params)
+  
   try{
-    const submitLoggin = await serverConnection.post("/db/authenticateUser",params)
-    console.log(submitLoggin)
+    const submitLoggin = await serverConnection.post("/nlightn/db/authenticateUser",{...params,dbName})
     
     const userValidated = submitLoggin.data
     return userValidated
@@ -176,10 +169,9 @@ export const authenticateUser = async (params)=>{
 
 //Get User Info
 export const getUserInfo = async (username)=>{
-  console.log(username)
+  
   try{
-    const getUserQuery = await serverConnection.post("/db/userRecord",{username})
-    console.log(getUserQuery)
+    const getUserQuery = await serverConnection.post("/nlightn/db/userRecord",{username, dbName})
     const getUserQueryResonse = await getUserQuery.data;
     return getUserQueryResonse
   }catch(error){
@@ -191,7 +183,7 @@ export const getUserInfo = async (username)=>{
 export const addUser = async (params)=>{
 
   try{
-    const result = await serverConnection.post("/db/addUser",{params})
+    const result = await serverConnection.post("/nlightn/db/addUser",{params})
     //console.log(result)
     const data = await result.data
     return (data)
@@ -212,7 +204,7 @@ export const resetPassword = async (req)=>{
   }
 
   try{
-    const result = await serverConnection.post("/db/updateRecord",{params})
+    const result = await serverConnection.post("/nlightn/db/updateRecord",{params})
     //console.log(result)
     const data = await result.data
     return (data)
@@ -316,7 +308,7 @@ export const runPython = async (pythonAppName,args)=>{
 export const getAllTables = async()=>{
   const query= `SELECT table_name FROM information_schema.tables where table_schema = 'public';`
   try{
-    const result = await serverConnection.post("/db/query",{query})
+    const result = await serverConnection.post("/nlightn/db/query",{query})
     console.log(JSON.parse(result.data))
     return (JSON.parse(result.data))
   }catch(error){
@@ -330,7 +322,7 @@ export const getColumnData = async(tableName)=>{
 
   const query= `SELECT column_name as name, data_type FROM information_schema.COLUMNS where TABLE_NAME = N'${tableName}';`
   try{
-    const result = await serverConnection.post("/db/query",{query})
+    const result = await serverConnection.post("/nlightn/db/query",{query})
     const data = result.data
 
     let fieldList = [] 
@@ -355,7 +347,7 @@ export const updateActivityLog = async(app, recordId, userEmail, description)=>{
   const tableName = "activities"
 
   try{
-    const result = await serverConnection.post("/db/addRecord",{tableName, formData})
+    const result = await serverConnection.post("/nlightn/db/addRecord",{tableName, formData})
     // console.log(result)
     const data = await result.data
     return (data)
