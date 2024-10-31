@@ -73,27 +73,27 @@ const Table = (props) => {
 
     const [selectedRows, setSelectedRows] = useState([]);
 
-    // const gridOptions = {
-    //     onGridReady: (params) => {
-    //         // params.api.sizeColumnsToFit();
-    //         params.api.autoSizeAllColumns(); // Auto size columns to fit content
-    //     },
-    //     rowClassRules: {
-    //         'selected-row': (params) => params.node.isSelected(),
-    //     },
-    //     getRowStyle: (params) => {
-    //         if (params.node && params.node.isSelected()) {
-    //             return { background: 'gray' };
-    //         }
-    //         return null;
-    //     },
-    //     onSelectionChanged: (event) => {
-    //         const selectedNodes = event.api.getSelectedNodes();
-    //         const selectedRowData = selectedNodes.map(node => node.data);
-    //         setSelectedRows(selectedRowData);
-    //         console.log('Selected Rows:', selectedRowData);
-    //     },
-    // };
+    const gridOptions = {
+        onGridReady: (params) => {
+            // params.api.sizeColumnsToFit();
+            params.api.autoSizeAllColumns(); // Auto size columns to fit content
+        },
+        rowClassRules: {
+            'selected-row': (params) => params.node.isSelected(),
+        },
+        getRowStyle: (params) => {
+            if (params.node && params.node.isSelected()) {
+                return { background: 'gray' };
+            }
+            return null;
+        },
+        onSelectionChanged: (event) => {
+            const selectedNodes = event.api.getSelectedNodes();
+            const selectedRowData = selectedNodes.map(node => node.data);
+            setSelectedRows(selectedRowData);
+            console.log('Selected Rows:', selectedRowData);
+        },
+    };
 
     useEffect(() => {
         if (typeof selectRows === "function") {
