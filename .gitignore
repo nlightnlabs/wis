@@ -1,9 +1,4 @@
 
 node_modules/
 
-backend/venv/
-backend/notebooks/
-backend/data/
-
-
 env
