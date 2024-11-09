@@ -1,8 +1,7 @@
 
 node_modules/
 
-
-backend/env/
+backend/venv/
 backend/data/
 backend/notebooks/
 backend/apps/app_files.pkl
