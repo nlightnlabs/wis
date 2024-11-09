@@ -10,7 +10,9 @@ try:
 except Exception:
     print(Exception)
 
-file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "app_files.pkl")
+# file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "app_files.pkl")
+
+file_path = "https://nlightnlabs01.s3.us-west-1.amazonaws.com/wis/models/app_files.pkl"
 
 pd.set_option('display.max_columns', None)
 
