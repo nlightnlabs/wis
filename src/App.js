@@ -16,12 +16,8 @@ function App() {
   const isAuthenticated = useSelector((state) => state.authentication.isAuthenticated);
   const user = useSelector((state) => state.authentication.isAuthenticated);
 
-  const contextApi = {
-    isAuthenticated,
-    mode,
-    user
-  }
 
+  console.log("app.js page")
 
   return (
 

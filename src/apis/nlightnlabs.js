@@ -1,23 +1,25 @@
 import axios from "axios";
 import * as formatValue from '../functions/formatValue.js'
 
-// export const baseURL = process.env.NODE_ENV==="production" ? "https://nlightnlabs.net/nlightn" : "http://localhost:3001"
-export const baseURL = "https://nlightnlabs.net"
+export const baseURL = process.env.NODE_ENV==="production" ? "https://nlightnlabs.net/nlightn" : "http://localhost:3001"
+// export const baseURL = "https://nlightnlabs.net"
+console.log("environment:", process.env.NODE_ENV)
+console.log("baseURL:", baseURL)
 
 const dbName = "wis"
 
 export const serverConnection = axios.create({
   baseURL,
 })
-
 const pythonURL = "http://localhost:8001"
 export const pythonConnection = axios.create({
   baseURL: pythonURL
 })
+console.log("pythonURL:", pythonURL)
+
 
 export const images = "https://nlightnlabs01.s3.us-west-1.amazonaws.com/wis/graphics/images"
 export const icons = "https://nlightnlabs01.s3.us-west-1.amazonaws.com/wis/graphics/images"
-
 
 
 //General Query

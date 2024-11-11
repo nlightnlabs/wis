@@ -6,7 +6,9 @@ import { useSelector } from 'react-redux';
 function SignIn() {
 
   const mode = useSelector(state=>state.environment.mode)
- 
+  
+  console.log("sign in page")
+
   return (
       
       <div className="flex flex-col w-full items-center mt-[75px] h-[3000px] fade-in">
