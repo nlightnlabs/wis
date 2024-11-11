@@ -10,7 +10,7 @@ export const serverConnection = axios.create({
   baseURL,
 })
 
-const pythonURL = process.env.NODE_ENV==="production" ? "http://nlightnlabs.net/python" : "http://localhost:8000"
+const pythonURL = "http://localhost:8001"
 export const pythonConnection = axios.create({
   baseURL: pythonURL
 })

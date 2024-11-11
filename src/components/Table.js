@@ -6,12 +6,13 @@ import { toProperCase } from '../functions/formatValue';
 
 const MyAgGrid = (props) => {
   const gridRef = useRef(null);
-  const rowData = props.data;
+  const [rowData, setRowData] = useState([...props.data]);
   const includeRowSelect = props.includeRowSelect || false
   const selectedRows = props.selectedRecords; // The updated list of selected staffing records
   const formatHeader = props.formatHeader || false;
   const fieldOptions = props.fieldOptions;
   const onCellClicked = props.onCellClicked || null;
+  const onCellEdit = props.onCellEdit || null
   const onRowSelected = props.onRowSelected || null; // New prop for row selection callback
   const mode = props.mode
   const tableFieldOptions = props.tableFieldOptions || [];
@@ -70,9 +71,6 @@ const MyAgGrid = (props) => {
     });
   }
 
-  const handleCellEdit = (params) => {
-    console.log('Cell Edited', params.data);
-  };
 
   const handleSelectionChange = (event) => {
     const source = event.source
@@ -117,6 +115,19 @@ const MyAgGrid = (props) => {
       });
     }
   }, [selectedRows, rowData]);
+
+
+  const handleCellEdit = (params) => {
+
+    const clonedData = JSON.parse(JSON.stringify(rowData));
+
+    const updatedData = clonedData.map(row => 
+      row === params.data ? { ...row, [params.colDef.field]: params.newValue } : row
+    );
+    setRowData(updatedData);  // Update state with new data
+    // onCellEdit && onCellEdit(params); // Optional callback
+  };
+  
   
 
   return (
@@ -125,10 +136,10 @@ const MyAgGrid = (props) => {
         ref={gridRef}
         rowData={rowData}
         columnDefs={columnDefs}
-        onCellValueChanged={handleCellEdit}
         animateRows={true}
         onCellClicked={handleCellClick}
         onSelectionChanged={handleSelectionChange}
+        onCellValueChanged={handleCellEdit}
         gridOptions={gridOptions}
         rowSelection="multiple"
         checkboxSelection={true}

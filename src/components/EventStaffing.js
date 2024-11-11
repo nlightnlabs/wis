@@ -201,7 +201,7 @@ const EventStaffing = () => {
   const handleRowSelect = (userUpdatedRecords) => {
     // console.log("userUpdatedRecords",userUpdatedRecords)
     if (JSON.stringify(userUpdatedRecords) !== JSON.stringify(selectedStaffing) && userUpdatedRecords.length>0 ) {
-      // console.log(userUpdatedRecords)
+      console.log(userUpdatedRecords)
       analyze(userUpdatedRecords);
     }
   };  
@@ -270,6 +270,16 @@ const EventStaffing = () => {
     {name: "Role", options: roles},
     {name: "Performance Rating", options: performanceRatings}
   ]
+
+  const [updatedRows, setUpdatedRows] = useState([]);
+  
+  const handleCellEdit = (params) => {
+    // console.log(params)
+
+    // const updatedRow = params.data;
+    // console.log("updatedRow", updatedRow)
+
+  };
 
 
   return (
@@ -462,6 +472,7 @@ const EventStaffing = () => {
                   hiddenColumns = {fieldsToExclude}
                   sortingOrder = {["median_aph"]}
                   onCellClicked = {(e)=>handleCellClick(e)}
+                  // onCellEdit = {(params)=>handleCellEdit(params)}
                   onRowSelected = {(selectedRows)=>handleRowSelect(selectedRows)}
                   mode = {mode}
                   tableFieldOptions = {tableFieldOptions}

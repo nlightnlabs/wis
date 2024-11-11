@@ -411,7 +411,6 @@ def analyze(parameters):
         print("totalCost", totalCost)
 
         revenue = parameters.get("revenue")
-        print("totalCost", totalCost)
         profit = revenue - totalCost
 
     except Exception as e:
