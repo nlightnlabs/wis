@@ -90,6 +90,7 @@ const EventStaffing = () => {
   const getStaffData = async ()=>{
 
     const response = await nlightnApi.getTable("staff_data")
+    console.log(response)
     let rawStaffData = response.data
 
     let role_set = new Set()
