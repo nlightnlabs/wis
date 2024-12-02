@@ -1,7 +1,7 @@
 import axios from "axios";
 import * as formatValue from '../functions/formatValue.js'
 
-export const baseURL = process.env.NODE_ENV==="production" ? "https://nlightnlabs.net/nlightn" : "http://localhost:3001"
+export const baseURL = process.env.NODE_ENV==="production" ? "https://nlightnlabs.net" : "http://localhost:3001"
 // export const baseURL = "https://nlightnlabs.net"
 console.log("environment:", process.env.NODE_ENV)
 console.log("baseURL:", baseURL)
