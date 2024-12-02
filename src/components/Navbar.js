@@ -13,7 +13,7 @@ const navigateTo = useNavigate()
 
 useEffect(()=>{
     console.log(currentPage)
-    navigateTo(`/${currentPage}`)
+    navigateTo(`wis/${currentPage}`)
 },[currentPage])
 
 const handlePageChange = (pageName)=>{
