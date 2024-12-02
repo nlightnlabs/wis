@@ -3,7 +3,6 @@ import ProtectedRoute from './components/ProtectedRoute';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import Header from "./components/Header";
-import Home from "./components/Home"
 import EventStaffing from "./components/EventStaffing"
 import StoreTrends from "./components/StoreTrends"
 import SignIn from './components/SignIn.js';
@@ -14,9 +13,7 @@ function App() {
 
   const mode = useSelector((state) => state.environment.mode);
   const isAuthenticated = useSelector((state) => state.authentication.isAuthenticated);
-  const user = useSelector((state) => state.authentication.isAuthenticated);
-
-
+  
   console.log("app.js page")
 
   return (
@@ -29,11 +26,11 @@ function App() {
         
       <div className="w-full h-[100%] overflow-y-auto">
         <Routes>
-          <Route path="/" element={<ProtectedRoute><EventStaffing /></ProtectedRoute>} />
-          <Route path="/event_staffing" element={<ProtectedRoute><EventStaffing /></ProtectedRoute>} />
-          <Route path="/store_trends" element={<ProtectedRoute><StoreTrends /></ProtectedRoute>} />
-          <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-          <Route path="/signin" element={<SignIn />} />
+          <Route path="/wis" element={<ProtectedRoute><EventStaffing /></ProtectedRoute>} />
+          <Route path="/wis/event_staffing" element={<ProtectedRoute><EventStaffing /></ProtectedRoute>} />
+          <Route path="/wis/store_trends" element={<ProtectedRoute><StoreTrends /></ProtectedRoute>} />
+          <Route path="/wis/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+          <Route path="/wis/signin" element={<SignIn />} />
         </Routes>
         </div>
       </Router>
