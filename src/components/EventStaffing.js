@@ -39,8 +39,6 @@ const EventStaffing = () => {
   const staffData = useSelector(state=>state.appData.staffData)
   const selectedStaffing = useSelector(state=>state.appData.selectedStaffing)
 
-  // const [staffData, setStaffData] = useState([])
-  // const [selectedStaffing, setSelectedStaffing] = useState([])
   const [customers, setCustomers] = useState([])
   const [districts, setDistricts] = useState([])
   const [roles, setRoles] = useState([])
@@ -111,8 +109,6 @@ const EventStaffing = () => {
   }
 
   useEffect(()=>{
-    // setStaffData(globalStaffData)
-    // setSelectedStaffing(globalSelectedStaffing)
     getCustomersAnDistricts()
     getStaffData()
   },[])
@@ -127,6 +123,7 @@ const EventStaffing = () => {
   const handleCellClick = (e)=>{
     console.log(e.data)
   } 
+
 
   const parseTime = (timeStr) => {
     // Check if time is in '6:00 AM' or '6:00 PM' format
@@ -204,52 +201,8 @@ const EventStaffing = () => {
       console.log(userUpdatedRecords)
       analyze(userUpdatedRecords);
     }
-  };  
+  }; 
 
-
-  const analyze = async(selectedRecords)=>{
-    
-    // console.log(selectedRecords)
-
-    if(staffData && selectedRecords && selectedRecords.length>0){
-
-
-      const parameters = {
-        customer_name: (formData.customer_name).toString(),
-        event_date: new Date(formData.event_date),  
-        event_time: parseTime(formData.event_time), 
-        revenue: parseFloat(formData.revenue),
-        inventory_count: parseFloat(formData.inventory_count),
-        district: (formData.district).toString(),
-        back_room_pct: parseFloat(formData.back_room_pct),
-        allowable_loi: parseFloat(formData.allowable_loi),
-        location: (formData.location).toString(),
-        number_of_people: parseFloat(formData.number_of_people),
-        distribution_method: (formData.distribution_method).toString(),
-        staff_data: staffData,
-        selected_staffing: selectedRecords
-      };
-
-      console.log(parameters)
-  
-      // Run python app
-      const response = await nlightnApi.pythonApp("staffing_optimizer","run_analysis",parameters);
-      // console.log(response)
-  
-      // Update UI state
-      dispatch(setStaffData(response.staff_data))
-      dispatch(setSelectedStaffing(response.selected_staffing))
-      dispatch(setTotalCost(response.summary.total_cost))
-      dispatch(setEstimatedLOI(response.summary.estimated_LOI))
-      dispatch(setLOIPasses(response.summary.loi_passes))
-      dispatch(setOverallAPH(response.summary.overall_APH))
-      dispatch(setAverageAPH(response.summary.average_APH))
-      dispatch(setTotalNumberOfPeople(response.summary.number_of_people))
-      dispatch(setRevenue(response.summary.revenue))
-      dispatch(setProfit(response.summary.profit))
-    }
-    
-  }
 
   const handleReset = ()=>{
     dispatch(setSelectedStaffing([]))
@@ -266,20 +219,62 @@ const EventStaffing = () => {
     
   }
 
+
+  const analyze = async(selectedRecords)=>{
+    
+    // console.log(selectedRecords)
+
+    if(staffData && selectedRecords && selectedRecords.length>0){
+
+      const parameters = {
+        customer_name: (formData.customer_name).toString(),
+        event_date: new Date(formData.event_date),  
+        event_time: parseTime(formData.event_time), 
+        revenue: parseFloat(formData.revenue),
+        inventory_count: parseFloat(formData.inventory_count),
+        district: (formData.district).toString(),
+        back_room_pct: parseFloat(formData.back_room_pct),
+        allowable_loi: parseFloat(formData.allowable_loi),
+        location: (formData.location).toString(),
+        number_of_people: parseFloat(formData.number_of_people),
+        distribution_method: (formData.distribution_method).toString(),
+        staff_data: staffData,
+        selected_staffing: selectedRecords
+      };
+  
+      // Run python app
+      const response = await nlightnApi.pythonApp("staffing_optimizer","run_analysis",parameters);
+      console.log(response)
+  
+      // Update UI state
+      dispatch(setStaffData(response.staff_data))
+      dispatch(setSelectedStaffing(response.selected_staffing))
+      dispatch(setTotalCost(response.summary.total_cost))
+      dispatch(setEstimatedLOI(response.summary.estimated_LOI))
+      dispatch(setLOIPasses(response.summary.loi_passes))
+      dispatch(setOverallAPH(response.summary.overall_APH))
+      dispatch(setAverageAPH(response.summary.average_APH))
+      dispatch(setTotalNumberOfPeople(response.summary.number_of_people))
+      dispatch(setRevenue(response.summary.revenue))
+      dispatch(setProfit(response.summary.profit))
+    }
+    
+  }
+
+
   const tableFieldOptions = [
     {name: "Role", options: roles},
-    {name: "Performance Rating", options: performanceRatings}
+    {name: "Performance Rating", options: performanceRatings},
+    {name: "Predicted APH", sortOrder: 'desc'},
   ]
 
   const [updatedRows, setUpdatedRows] = useState([]);
   
   const handleCellEdit = (params) => {
-    // console.log(params)
-
-    // const updatedRow = params.data;
-    // console.log("updatedRow", updatedRow)
-
+    console.log("updatedRow", params.data)
   };
+
+  
 
 
   return (
@@ -409,74 +404,73 @@ const EventStaffing = () => {
 
             <div className={`flex w-full h-auto p-2 panel-mode-${mode} rounded-md shadow-md mb-5 items-center justify-between`}>
 
-            <div className="flex justify-between">
+              <div className="flex justify-between">
 
-              <div className={`flex flex-col p-1 ms-2 me-2 fade-in transition duration-500 items-center justify-center`}>
-                <label className={`text-[20px] font-bold text-center`}>{totalNumberOfPeople && formatValue(totalNumberOfPeople ?totalNumberOfPeople :0 , "quantity", "", 2, true)}</label>
-                <label className={`text-[12px] text-center`}>Total People</label>
+                <div className={`flex flex-col p-1 ms-2 me-2 fade-in transition duration-500 items-center justify-center`}>
+                  <label className={`text-[20px] font-bold text-center`}>{totalNumberOfPeople && formatValue(totalNumberOfPeople ?totalNumberOfPeople :0 , "quantity", "", 2, true)}</label>
+                  <label className={`text-[12px] text-center`}>Total People</label>
+                </div>
+
+                  <div className={`flex flex-col p-1 ms-2 me-2 fade-in transition duration-500 items-center justify-center`}>
+                    <label className={`text-[20px] text-center font-bold`}>{formatValue(overallAPH ? overallAPH : 0, "quantity", "", 2, true)}</label>
+                    <label className={`text-[12px] text-center text-gray-500`}>Overall APH</label>
+                  </div>
+
+                  <div className={`flex flex-col p-1 ms-2 me-2 fade-in transition duration-500 items-center justify-center`}>
+                    <label className={`text-[20px] text-center font-bold`}>{formatValue(averageAPH ? averageAPH : 0, "quantity", "", 0, false)}</label>
+                    <label className={`text-[12px] text-center text-gray-500`}>Average APH</label>
+                  </div>
+
+
+                    <div className={`flex flex-col p-1 ms-2 me-2 fade-in transition duration-500 items-center justify-center`}>
+                      <label className={`text-[20px] text-center font-bold`}>{formatValue(totalCost ? totalCost : 0, "currency", "$", 2, true)}</label>
+                      <label className={`text-[12px] text-center text-gray-500`}>Total Cost</label>
+                    </div>
+
+                    <div className={`flex flex-col p-1 ms-2 me-2 fade-in transition duration-500 items-center justify-center`}>
+                      <label className={`text-[20px] text-center font-bold`}>{formatValue(revenue ? revenue : 0, "currency", "$", 2, true)}</label>
+                      <label className={`text-[12px] text-center text-gray-500`}>Revenue</label>
+                    </div>
+                  
               </div>
 
+              <div className="flex border-[1px] rounded-md">
                 <div className={`flex flex-col p-1 ms-2 me-2 fade-in transition duration-500 items-center justify-center`}>
-                  <label className={`text-[20px] text-center font-bold`}>{formatValue(overallAPH ? overallAPH : 0, "quantity", "", 2, true)}</label>
-                  <label className={`text-[12px] text-center text-gray-500`}>Overall APH</label>
+                  <label className={`text-[20px] text-center font-bold ${loiPasses ? "text-green-500" : "text-red-500"}`}>{ formatValue(estimatedLOI ? estimatedLOI :0, "quantity", "", 2, true)} hours</label>
+                  <label className={`text-[12px] text-center text-gray-500`}>Estimated LOI</label>
                 </div>
-
+              
                 <div className={`flex flex-col p-1 ms-2 me-2 fade-in transition duration-500 items-center justify-center`}>
-                  <label className={`text-[20px] text-center font-bold`}>{formatValue(averageAPH ? averageAPH : 0, "quantity", "", 0, false)}</label>
-                  <label className={`text-[12px] text-center text-gray-500`}>Average APH</label>
+                  <label className={`text-[20px] font-bold text-center ${profit > 0 ? "text-green-500" : "text-red-500"}`}>{formatValue(profit ? profit : 0, "currency", "$", 2, true)}</label>
+                  <label className={`text-[12px] text-center text-gray-500`}>Profit</label>
                 </div>
 
+                <div className="flex justify-end mt-1 p-3">
+                  <button 
+                    className={staffData.length>0 ? `button-mode-${mode}` : "bg-yellow-500 text-white p-1"}
+                    onClick = {()=>analyze(selectedStaffing)}
+                    >
+                      Optimize
+                  </button>
+                </div> 
 
-                  <div className={`flex flex-col p-1 ms-2 me-2 fade-in transition duration-500 items-center justify-center`}>
-                    <label className={`text-[20px] text-center font-bold`}>{formatValue(totalCost ? totalCost : 0, "currency", "$", 2, true)}</label>
-                    <label className={`text-[12px] text-center text-gray-500`}>Total Cost</label>
-                  </div>
-
-                  <div className={`flex flex-col p-1 ms-2 me-2 fade-in transition duration-500 items-center justify-center`}>
-                    <label className={`text-[20px] text-center font-bold`}>{formatValue(revenue ? revenue : 0, "currency", "$", 2, true)}</label>
-                    <label className={`text-[12px] text-center text-gray-500`}>Revenue</label>
-                  </div>
-                
-                </div>
-
-
-                <div className="flex border-[1px] rounded-md">
-                  <div className={`flex flex-col p-1 ms-2 me-2 fade-in transition duration-500 items-center justify-center`}>
-                    <label className={`text-[20px] text-center font-bold ${loiPasses ? "text-green-500" : "text-red-500"}`}>{ formatValue(estimatedLOI ? estimatedLOI :0, "quantity", "", 2, true)} hours</label>
-                    <label className={`text-[12px] text-center text-gray-500`}>Estimated LOI</label>
-                  </div>
-                
-                  <div className={`flex flex-col p-1 ms-2 me-2 fade-in transition duration-500 items-center justify-center`}>
-                    <label className={`text-[20px] font-bold text-center ${profit > 0 ? "text-green-500" : "text-red-500"}`}>{formatValue(profit ? profit : 0, "currency", "$", 2, true)}</label>
-                    <label className={`text-[12px] text-center text-gray-500`}>Profit</label>
-                  </div>
-
-                  <div className="flex justify-end mt-1 p-3">
-                    <button 
-                      className={staffData.length>0 ? `button-mode-${mode}` : "bg-yellow-500 text-white p-1"}
-                      onClick = {()=>analyze(selectedStaffing)}
-                      >
-                        Optimize
-                    </button>
-                  </div> 
-
-                </div>
+              </div>
 
             </div>
 
-            <div className={`flex h-[100%] w-full shadow-md rounded-md border-mode-${mode} rounded-md shadow-mode-${mode} transition duration-500`}>
+            <div className={`flex flex-col h-[100%] min-h-[250px] w-full shadow-md rounded-md border-mode-${mode} rounded-md shadow-mode-${mode} transition duration-500`}>
               {staffData && selectedStaffing &&
                 <Table
                   data = {staffData}
                   includeRowSelect = {true}
                   hiddenColumns = {fieldsToExclude}
-                  sortingOrder = {["median_aph"]}
+                  fieldOptions = {tableFieldOptions}
                   onCellClicked = {(e)=>handleCellClick(e)}
-                  // onCellEdit = {(params)=>handleCellEdit(params)}
+                  onCellEdit = {(params)=>handleCellEdit(params)}
                   onRowSelected = {(selectedRows)=>handleRowSelect(selectedRows)}
                   mode = {mode}
                   tableFieldOptions = {tableFieldOptions}
-                  selectedRecords = {selectedStaffing}
+                  selectedRows = {selectedStaffing}
                 />
               } 
             </div>

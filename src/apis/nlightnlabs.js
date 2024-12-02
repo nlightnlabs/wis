@@ -491,11 +491,7 @@ export const pythonApp = async (app_name, main_function, parameters) => {
 
   try {
       const response = await pythonConnection.post('/runApp', { app_name, main_function, parameters });
-      // console.log("Response Type:", typeof response.data);  // Should be "object" for JSON
-      // console.log("Response Data:", response.data);  // Check structure
-
-      // const data = typeof response.data === "string" ? JSON.parse(response.data) : response.data;
-      console.log(response.data)
+      // console.log(response.data)
       return response.data;
       
   } catch (error) {

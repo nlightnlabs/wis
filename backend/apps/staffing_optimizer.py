@@ -22,8 +22,33 @@ from sqlalchemy.types import Boolean, Numeric, BigInteger, Date
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.dialects.postgresql import insert
 
-
 from predict_person_aph import predict_person_aph
+
+import pickle
+import boto3
+import io
+
+# AWS S3 bucket and file path
+bucket_name = 'nlightnlabs01'
+file_key = 'wis/models/app_files.pkl'
+
+# Initialize S3 client
+s3_client = boto3.client('s3')
+
+# Load app_files.pkl from S3
+def get_model_from_s3():
+    try:
+        # Get the object from S3
+        response = s3_client.get_object(Bucket=bucket_name, Key=file_key)
+        file_content = response['Body'].read()
+
+        # Load the pickle content
+        app_files = pickle.load(io.BytesIO(file_content))
+        
+        return app_files
+    except Exception as e:
+        print(f"Error loading pickle file from S3: {e}")
+        return None
 
 
 # Get Staff Data from Database
@@ -41,7 +66,7 @@ def getStaffData(parameters):
         round(median_wage_rate,2) AS "Wage Rate",
         most_common_role AS "Role",
         most_common_performance_rating AS "Performance Rating",
-        most_common_pay_basis AS "Pay Basis", 
+        most_common_salary_vs_hourly_comp AS "Pay Basis", 
         most_common_employee_postal_code AS "Employee Postal Code",
         date_of_hire AS "Date of Hire",
         date_of_birth AS "Date of Birth",
@@ -347,19 +372,15 @@ def analyze(parameters):
         performance_rating_3_pct = round(len(selected_staffing_df[selected_staffing_df["Performance Rating"] == "3"]) / number_of_people * 100,2) if number_of_people >0 else 0
         performance_rating_4_pct = round(len(selected_staffing_df[selected_staffing_df["Performance Rating"] == "4"]) / number_of_people * 100,2) if number_of_people >0 else 0
         performance_rating_other_pct = round(len(selected_staffing_df[~selected_staffing_df["Performance Rating"].isin(["1", "2", "3", "4"])]) / number_of_people * 100,2) if number_of_people >0 else 0
-
-        print("role_0_pct", role_0_pct)
-
-        print("performance_rating_1_pct", performance_rating_1_pct)
-        print("performance_rating_2_pct", performance_rating_2_pct)
-        print("performance_rating_3_pct", performance_rating_3_pct)
-        print("performance_rating_4_pct", performance_rating_4_pct)
-        print("performance_rating_other_pct", performance_rating_other_pct)
     
     except Exception as e:
         print(f"Error quantifying precentage role and performane {e}")
 
-   
+    try:
+        model_files = get_model_from_s3()
+    except Exception as e:
+        print(f"Error getting model_files: {e}")
+
     try:
         selected_staffing_df["Predicted APH"] = selected_staffing_df.apply(lambda row: round(
             predict_person_aph({
@@ -381,9 +402,14 @@ def analyze(parameters):
                 "EVENT_PCT_COUNTER_ASET_3": [float(performance_rating_3_pct)][0],
                 "EVENT_PCT_COUNTER_ASET_4": [float(performance_rating_4_pct)][0],
                 "EVENT_PCT_COUNTER_ASET_OTHERS": [float(performance_rating_other_pct)][0]
-            }),2), axis=1)
+            },model_files),0), axis=1)
         
+        print("Predicted APH",selected_staffing_df["Predicted APH"])
+
         selected_staffing_df["Predicted APH"] = round(selected_staffing_df["Predicted APH"].astype("float64"),0)
+
+        print("Predicted APH",selected_staffing_df["Predicted APH"])
+
     except Exception as e:
         print(f"Error predicting person APH {e}")
     
@@ -406,7 +432,7 @@ def analyze(parameters):
         estimated_LOI = selected_staffing_df["Estimated LOI"].max()
         loi_passes = False if estimated_LOI > allowable_loi else True
 
-        overall_APH = total_inventory / estimated_LOI
+        overall_APH = total_inventory / estimated_LOI if estimated_LOI >0 else None
         totalCost = selected_staffing_df["Estimated Cost"].sum()
         print("totalCost", totalCost)
 
@@ -486,23 +512,6 @@ def analyze(parameters):
 
 
 def process_staff_data(parameters):
-    
-    print(parameters)
-
-    # parameters = {
-    #     "customer_name": str(parameters.get("customer_name")),
-    #     "event_date": datetime.strptime(parameters.get("event_date"), "%Y-%m-%d").date(),
-    #     "event_time": datetime.strptime(parameters.get("event_time"), "%I:%M %p").time(),
-    #     "revenue": float(parameters.get("revenue")),
-    #     "district": str(parameters.get("district")),
-    #     "back_room_pct": float(parameters.get("back_room_pct")),
-    #     "allowable_loi": float(parameters.get("allowable_loi")),
-    #     "location": str(parameters.get("location")),
-    #     "number_of_people": int(parameters.get("number_of_people")),
-    #     "distribution_method": str(parameters.get("distribution_method"))
-    # }
-    # print(parameters)
-
     
     # Ensure parameters are provided
     if parameters is None:

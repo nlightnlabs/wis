@@ -4,19 +4,17 @@ import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import { toProperCase } from '../functions/formatValue';
 
-const MyAgGrid = (props) => {
+const Table = (props) => {
   const gridRef = useRef(null);
   const [rowData, setRowData] = useState([...props.data]);
   const includeRowSelect = props.includeRowSelect || false
-  const selectedRows = props.selectedRecords; // The updated list of selected staffing records
+  const selectedRows = props.selectedRows; // The updated list of selected staffing records
   const formatHeader = props.formatHeader || false;
-  const fieldOptions = props.fieldOptions;
   const onCellClicked = props.onCellClicked || null;
   const onCellEdit = props.onCellEdit || null
   const onRowSelected = props.onRowSelected || null; // New prop for row selection callback
   const mode = props.mode
   const tableFieldOptions = props.tableFieldOptions || [];
-  const initialNumberOfRowsSelected = props.initialNumberOfRowsSelected || 0;
 
   const hiddenColumns = props.hiddenColumns || []
 
@@ -47,7 +45,7 @@ const MyAgGrid = (props) => {
       
       if (!hiddenColumns.includes(field)){
 
-        const fieldOptions = tableFieldOptions.find(item => item.name === field)?.options;
+        const fieldOptions = tableFieldOptions.find(item => item.name === field);
       
         columnDefs.push({
           field: field,
@@ -56,7 +54,7 @@ const MyAgGrid = (props) => {
           sortable: true,
           filter: true,
           cellEditor: fieldOptions  ? 'agSelectCellEditor' : 'agTextCellEditor',
-          cellEditorParams: fieldOptions  ? { values: fieldOptions } : null,
+          cellEditorParams: fieldOptions  ? { values: fieldOptions.options } : null,
           minWidth: 25,
           maxWidth: 150,
           flex: 0,
@@ -66,6 +64,7 @@ const MyAgGrid = (props) => {
               color: field==="Predicted APH" && "rgb(0,150,50)",
               backgroundColor:  field==="Predicted APH" &&  "rgba(0,225,100,0.25)",
           },
+          sort: fieldOptions  ?  fieldOptions.sortOrder : null
         });
       }
     });
@@ -73,10 +72,13 @@ const MyAgGrid = (props) => {
 
 
   const handleSelectionChange = (event) => {
+    
+    console.log(event)
+    console.log(event.source)
+
     const source = event.source
-    console.log(source)
     const updatedSelection = event.api.getSelectedNodes().map(node => node.data);
-    if (source ==="checkboxSelected" && JSON.stringify(updatedSelection) !== JSON.stringify(selectedRows)) {
+    if ((source ==="checkboxSelected" ||source ==="uiSelectAll") && JSON.stringify(updatedSelection) !== JSON.stringify(selectedRows)) {
       onRowSelected(updatedSelection);
     }
   };
@@ -84,12 +86,6 @@ const MyAgGrid = (props) => {
   const gridOptions = {
     rowClassRules: {
       'selected-row': (params) => params.node.isSelected(),
-    },
-    getRowStyle: (params) => {
-      if (params.node && params.node.isSelected()) {
-        return { background: 'gray' };
-      }
-      return null;
     },
     onFirstDataRendered: (params) => {
       selectedRows && rowData.forEach((row, rowIndex) => {
@@ -118,15 +114,14 @@ const MyAgGrid = (props) => {
 
 
   const handleCellEdit = (params) => {
-
-    const clonedData = JSON.parse(JSON.stringify(rowData));
-
-    const updatedData = clonedData.map(row => 
-      row === params.data ? { ...row, [params.colDef.field]: params.newValue } : row
-    );
-    setRowData(updatedData);  // Update state with new data
-    // onCellEdit && onCellEdit(params); // Optional callback
+    if(typeof onCellEdit === "function"){
+      onCellEdit(params)
+    }
   };
+
+  useEffect(() => {
+    setRowData([...props.data])
+  }, [props.data]);
   
   
 
@@ -148,7 +143,7 @@ const MyAgGrid = (props) => {
   );
 };
 
-export default MyAgGrid;
+export default Table;
 
 
 
